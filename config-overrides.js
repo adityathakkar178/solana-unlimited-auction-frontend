@@ -10,9 +10,11 @@ module.exports = function override(config) {
         "https": require.resolve("https-browserify"),
         "os": require.resolve("os-browserify"),
         "url": require.resolve("url"),
-        "zlib": require.resolve('browserify-zlib')
-    })
+        "zlib": require.resolve('browserify-zlib'),
+        "vm": require.resolve("vm-browserify")  // Add the vm polyfill here
+    });
     config.resolve.fallback = fallback;
+    
     config.plugins = (config.plugins || []).concat([
         new webpack.ProvidePlugin({
             process: 'process/browser',
@@ -25,8 +27,11 @@ module.exports = function override(config) {
         enforce: 'pre',
         use: ['source-map-loader'],
         exclude: [
-            /node_modules\/@solana\/buffer-layout/
+            /node_modules\/@solana\/buffer-layout/,
+            /node_modules\/@project-serum/,
+            /node_modules\/@solana/
         ],
     });
+
     return config;
 }

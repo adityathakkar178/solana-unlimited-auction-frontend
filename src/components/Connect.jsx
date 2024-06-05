@@ -1,14 +1,14 @@
 import { createContext, useState } from 'react';
 import { useAnchorWallet } from '@solana/wallet-adapter-react';
 import { Connection, PublicKey, SystemProgram, Keypair } from '@solana/web3.js';
-import { Program, AnchorProvider } from '@project-serum/anchor';
+import * as anchor from '@project-serum/anchor';
 import { getAssociatedTokenAddressSync } from '@solana/spl-token';
 import { useWallet } from '@solana/wallet-adapter-react';
 import {
     WalletMultiButton,
     WalletDisconnectButton,
 } from '@solana/wallet-adapter-react-ui';
-import idl from '../idl.json';
+import { IDL } from '../idl';
 import { Container, ButtonGroup, Button, Form } from 'react-bootstrap';
 import MintCollection from './Collection';
 
@@ -16,7 +16,7 @@ require('@solana/wallet-adapter-react-ui/styles.css');
 
 const ProgramContext = createContext(null);
 
-const programID = new PublicKey(idl.metadata.address);
+const programID = new PublicKey(IDL.metadata.address);
 const network = 'https://api.devnet.solana.com/';
 const opts = { preflightCommitment: 'processed' };
 
@@ -34,7 +34,11 @@ const Wallet = () => {
     const getProvider = () => {
         if (!wallet) return null;
         const connection = new Connection(network, opts.preflightCommitment);
-        return new AnchorProvider(connection, wallet, opts.preflightCommitment);
+        return new anchor.AnchorProvider(
+            connection,
+            wallet,
+            opts.preflightCommitment
+        );
     };
 
     // setProvider(getProvider);
@@ -50,42 +54,55 @@ const Wallet = () => {
             setError('Provider is not available.');
             return;
         }
-        const program = new Program(idl, programID, provider);
+        // console.log(programID);
+        const program = new anchor.Program(IDL, programID, provider);
         console.log(program);
+        console.log('provider', provider.wallet);
         setProgram(program);
         try {
             const collectionMintAccount = Keypair.generate();
+            console.log('mint', collectionMintAccount);
 
             const collectionAssociatedTokenAccount =
                 getAssociatedTokenAddressSync(
-                    [
-                        collectionMintAccount.publicKey.toBuffer(),
-                        provider.wallet.publicKey.toBuffer(),
-                    ],
-                    program.programId
+                    provider.wallet.publicKey,
+                    collectionMintAccount.publicKey
                 );
 
-            program.methods.mintCollection(
-                collectionName,
-                collectionSymbol,
-                collectionURI,
-                {
-                    accounts: {
-                        payer: provider.wallet.publicKey,
-                        collectionMintAccount: collectionMintAccount.publicKey,
-                        collectionAssociatedTokenAccount:
-                            collectionAssociatedTokenAccount[0],
-                    },
-                    signers: [collectionMintAccount],
-                }
+            console.log(program.methods.mintCollection);
+            console.log(collectionName, collectionSymbol, collectionURI);
+            // const collectionTransactionSignature = await program.methods
+            //     .mintCollection(collectionName, collectionSymbol, collectionURI)
+            //     .accounts({
+            //         payer: provider.wallet.publicKey,
+            //         collectionMintAccount: collectionMintAccount.publicKey,
+            //         collectionAssociatedTokenAccount:
+            //             collectionAssociatedTokenAccount,
+            //     })
+            //     .signers([collectionMintAccount])
+            //     .rpc({ skipPreflight: true }).then().catch((error)=> console.log("error", error));
+            const col = await program.instruction
+                .mintCollection(collectionName, collectionSymbol, collectionURI)
+                .accounts({
+                    payer: provider.wallet.publicKey,
+                    collectionMintAccount: collectionMintAccount.publicKey,
+                    collectionAssociatedTokenAccount:
+                        collectionAssociatedTokenAccount,
+                })
+                .signers([collectionMintAccount])
+                .rpc({ skipPreflight: true })
+                .then()
+                .catch((error) => console.log('error', error));
+            console.log(
+                'Transaction signature',
+                // collectionTransactionSignature
+                col
             );
-
-            // setCollectionAddress(collectionMintAccount.publicKey.toString());
         } catch (error) {
             console.error('Error minting collection:', error);
         }
     };
-    
+
     return (
         <>
             <Container className="d-flex justify-content-center my-3">
