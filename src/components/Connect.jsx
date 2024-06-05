@@ -16,7 +16,6 @@ require('@solana/wallet-adapter-react-ui/styles.css');
 
 const ProgramContext = createContext(null);
 
-const programID = new PublicKey(IDL.metadata.address);
 const network = 'https://api.devnet.solana.com/';
 const opts = { preflightCommitment: 'processed' };
 
@@ -41,8 +40,6 @@ const Wallet = () => {
         );
     };
 
-    // setProvider(getProvider);
-
     const mintCollection = async () => {
         setError('');
         if (!connected) {
@@ -55,49 +52,72 @@ const Wallet = () => {
             return;
         }
         // console.log(programID);
-        const program = new anchor.Program(IDL, programID, provider);
-        console.log(program);
-        console.log('provider', provider.wallet);
-        setProgram(program);
+        const program = new anchor.Program(
+            IDL,
+            new PublicKey('E2BkzeYcufY1HRNLEAuFA27gTxsx7bvw4YoCNxvduzDd'),
+            provider
+        );
+        // console.log(program);
+        // console.log('provider', provider.wallet);
+        // setProgram(program);
         try {
             const collectionMintAccount = Keypair.generate();
-            console.log('mint', collectionMintAccount);
+
+            const [collectionMetadataAccount, metadataBump] =
+                PublicKey.findProgramAddressSync(
+                    [
+                        Buffer.from('metadata'),
+                        new PublicKey(
+                            'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+                        ).toBuffer(),
+                        collectionMintAccount.publicKey.toBuffer(),
+                    ],
+                    new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s')
+                );
+
+            const [collectionEditionAccount, editionBump] =
+                PublicKey.findProgramAddressSync(
+                    [
+                        Buffer.from('metadata'),
+                        new PublicKey(
+                            'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+                        ).toBuffer(),
+                        collectionMintAccount.publicKey.toBuffer(),
+                        Buffer.from('edition'),
+                    ],
+                    new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s')
+                );
 
             const collectionAssociatedTokenAccount =
                 getAssociatedTokenAddressSync(
-                    provider.wallet.publicKey,
-                    collectionMintAccount.publicKey
+                    collectionMintAccount.publicKey,
+                    provider.wallet.publicKey
                 );
 
             console.log(program.methods.mintCollection);
             console.log(collectionName, collectionSymbol, collectionURI);
-            // const collectionTransactionSignature = await program.methods
-            //     .mintCollection(collectionName, collectionSymbol, collectionURI)
-            //     .accounts({
-            //         payer: provider.wallet.publicKey,
-            //         collectionMintAccount: collectionMintAccount.publicKey,
-            //         collectionAssociatedTokenAccount:
-            //             collectionAssociatedTokenAccount,
-            //     })
-            //     .signers([collectionMintAccount])
-            //     .rpc({ skipPreflight: true }).then().catch((error)=> console.log("error", error));
-            const col = await program.instruction
+            const transactionSignature = await program.methods
                 .mintCollection(collectionName, collectionSymbol, collectionURI)
                 .accounts({
                     payer: provider.wallet.publicKey,
+                    collectionMetadataAccount,
+                    collectionEditionAccount,
                     collectionMintAccount: collectionMintAccount.publicKey,
-                    collectionAssociatedTokenAccount:
-                        collectionAssociatedTokenAccount,
+                    collectionAssociatedTokenAccount,
+                    tokenProgram: anchor.utils.token.TOKEN_PROGRAM_ID,
+                    tokenMetadataProgram: new PublicKey(
+                        'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+                    ),
+                    associatedTokenProgram: new PublicKey(
+                        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
+                    ),
+                    systemProgram: SystemProgram.programId,
+                    rent: anchor.web3.SYSVAR_RENT_PUBKEY,
                 })
                 .signers([collectionMintAccount])
-                .rpc({ skipPreflight: true })
-                .then()
-                .catch((error) => console.log('error', error));
-            console.log(
-                'Transaction signature',
-                // collectionTransactionSignature
-                col
-            );
+                .rpc({ skipPreflight: true });
+
+            console.log('Transaction signature', transactionSignature);
         } catch (error) {
             console.error('Error minting collection:', error);
         }
