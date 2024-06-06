@@ -4,58 +4,58 @@ import * as anchor from '@project-serum/anchor';
 import { getAssociatedTokenAddressSync } from '@solana/spl-token';
 import { Button, Form, Container } from 'react-bootstrap';
 
-const MintCollection = ({ program, provider }) => {
-    const [collectionName, setCollectionName] = useState('');
-    const [collectionSymbol, setCollectionSymbol] = useState('');
-    const [collectionURI, setCollectionURI] = useState('');
+const MintNFT = ({ program, provider }) => {
+    const [nftName, setNftName] = useState('');
+    const [nftSymbol, setNftSymbol] = useState('');
+    const [nftURI, setNftURI] = useState('');
+    const [collectionAddress, setCollectionAddress] = useState('');
 
-    const mintCollection = async () => {
+    const mintNft = async () => {
         try {
-            const collectionMintAccount = Keypair.generate();
+            const mintAccount = Keypair.generate();
 
-            console.log(collectionMintAccount.publicKey.toString());
+            const collectionAddressPubkey = new PublicKey(collectionAddress);
 
-            const [collectionMetadataAccount, metadataBump] =
+            const [metadataAccount, metadataBump] =
                 PublicKey.findProgramAddressSync(
                     [
                         Buffer.from('metadata'),
                         new PublicKey(
                             'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
                         ).toBuffer(),
-                        collectionMintAccount.publicKey.toBuffer(),
+                        mintAccount.publicKey.toBuffer(),
                     ],
                     new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s')
                 );
 
-            const [collectionEditionAccount, editionBump] =
+            const [editionAccount, editionBump] =
                 PublicKey.findProgramAddressSync(
                     [
                         Buffer.from('metadata'),
                         new PublicKey(
                             'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
                         ).toBuffer(),
-                        collectionMintAccount.publicKey.toBuffer(),
+                        mintAccount.publicKey.toBuffer(),
                         Buffer.from('edition'),
                     ],
                     new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s')
                 );
 
-            const collectionAssociatedTokenAccount =
-                getAssociatedTokenAddressSync(
-                    collectionMintAccount.publicKey,
-                    provider.wallet.publicKey
-                );
+            const associatedTokenAccount = getAssociatedTokenAddressSync(
+                mintAccount.publicKey,
+                provider.wallet.publicKey
+            );
 
             console.log(program.methods.mintCollection);
-            console.log(collectionName, collectionSymbol, collectionURI);
+            console.log(nftName, nftSymbol, nftURI, collectionAddressPubkey);
             const transactionSignature = await program.methods
-                .mintCollection(collectionName, collectionSymbol, collectionURI)
+                .mintNft(nftName, nftSymbol, nftURI, collectionAddressPubkey)
                 .accounts({
                     payer: provider.wallet.publicKey,
-                    collectionMetadataAccount,
-                    collectionEditionAccount,
-                    collectionMintAccount: collectionMintAccount.publicKey,
-                    collectionAssociatedTokenAccount,
+                    metadataAccount: metadataAccount,
+                    editionAccount: editionAccount,
+                    mintAccount: mintAccount.publicKey,
+                    associatedTokenAccount: associatedTokenAccount,
                     tokenProgram: anchor.utils.token.TOKEN_PROGRAM_ID,
                     tokenMetadataProgram: new PublicKey(
                         'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
@@ -66,8 +66,10 @@ const MintCollection = ({ program, provider }) => {
                     systemProgram: SystemProgram.programId,
                     rent: anchor.web3.SYSVAR_RENT_PUBKEY,
                 })
-                .signers([collectionMintAccount])
-                .rpc({ skipPreflight: true });
+                .signers([mintAccount])
+                .rpc({ skipPreflight: true })
+                .then()
+                .catch((error) => console.error(error));
 
             console.log('Transaction signature', transactionSignature);
         } catch (error) {
@@ -77,44 +79,54 @@ const MintCollection = ({ program, provider }) => {
 
     return (
         <Container>
-            <h2>Mint Collection</h2>
+            <h2>Mint NFT</h2>
             <Form>
                 <Form.Group controlId="collectionName">
-                    <Form.Label>Collection Name</Form.Label>
+                    <Form.Label>Nft Name</Form.Label>
                     <Form.Control
                         type="text"
                         placeholder="Enter collection name"
-                        value={collectionName}
-                        onChange={(e) => setCollectionName(e.target.value)}
+                        value={nftName}
+                        onChange={(e) => setNftName(e.target.value)}
                     />
                 </Form.Group>
 
                 <Form.Group controlId="collectionSymbol">
-                    <Form.Label>Collection Symbol</Form.Label>
+                    <Form.Label>Nft Symbol</Form.Label>
                     <Form.Control
                         type="text"
                         placeholder="Enter collection symbol"
-                        value={collectionSymbol}
-                        onChange={(e) => setCollectionSymbol(e.target.value)}
+                        value={nftSymbol}
+                        onChange={(e) => setNftSymbol(e.target.value)}
                     />
                 </Form.Group>
 
                 <Form.Group controlId="collectionURI">
-                    <Form.Label>Collection URI</Form.Label>
+                    <Form.Label>Nft URI</Form.Label>
                     <Form.Control
                         type="text"
                         placeholder="Enter collection URI"
-                        value={collectionURI}
-                        onChange={(e) => setCollectionURI(e.target.value)}
+                        value={nftURI}
+                        onChange={(e) => setNftURI(e.target.value)}
                     />
                 </Form.Group>
 
-                <Button variant="primary" onClick={mintCollection}>
-                    Mint Collection
+                <Form.Group controlId="collectionAddress">
+                    <Form.Label>Collection Address</Form.Label>
+                    <Form.Control
+                        type="text"
+                        placeholder="Enter collection Address"
+                        value={collectionAddress}
+                        onChange={(e) => setCollectionAddress(e.target.value)}
+                    />
+                </Form.Group>
+
+                <Button variant="primary" onClick={mintNft}>
+                    Mint NFT
                 </Button>
             </Form>
         </Container>
     );
 };
 
-export default MintCollection;
+export default MintNFT;

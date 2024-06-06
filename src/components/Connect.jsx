@@ -11,6 +11,7 @@ import {
 import { IDL } from '../idl';
 import { Container, ButtonGroup, Button, Form } from 'react-bootstrap';
 import MintCollection from './Collection';
+import MintNFT from './Mint';
 
 require('@solana/wallet-adapter-react-ui/styles.css');
 
@@ -40,7 +41,7 @@ const Wallet = () => {
         );
     };
 
-    const mintCollection = async () => {
+    const connectToProgram = async () => {
         setError('');
         if (!connected) {
             setError('Wallet is not connected.');
@@ -51,6 +52,7 @@ const Wallet = () => {
             setError('Provider is not available.');
             return;
         }
+        setProvider(provider);
         // console.log(programID);
         const program = new anchor.Program(
             IDL,
@@ -59,68 +61,68 @@ const Wallet = () => {
         );
         // console.log(program);
         // console.log('provider', provider.wallet);
-        // setProgram(program);
-        try {
-            const collectionMintAccount = Keypair.generate();
+        setProgram(program);
+        // try {
+        //     const collectionMintAccount = Keypair.generate();
 
-            const [collectionMetadataAccount, metadataBump] =
-                PublicKey.findProgramAddressSync(
-                    [
-                        Buffer.from('metadata'),
-                        new PublicKey(
-                            'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-                        ).toBuffer(),
-                        collectionMintAccount.publicKey.toBuffer(),
-                    ],
-                    new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s')
-                );
+        //     const [collectionMetadataAccount, metadataBump] =
+        //         PublicKey.findProgramAddressSync(
+        //             [
+        //                 Buffer.from('metadata'),
+        //                 new PublicKey(
+        //                     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+        //                 ).toBuffer(),
+        //                 collectionMintAccount.publicKey.toBuffer(),
+        //             ],
+        //             new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s')
+        //         );
 
-            const [collectionEditionAccount, editionBump] =
-                PublicKey.findProgramAddressSync(
-                    [
-                        Buffer.from('metadata'),
-                        new PublicKey(
-                            'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-                        ).toBuffer(),
-                        collectionMintAccount.publicKey.toBuffer(),
-                        Buffer.from('edition'),
-                    ],
-                    new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s')
-                );
+        //     const [collectionEditionAccount, editionBump] =
+        //         PublicKey.findProgramAddressSync(
+        //             [
+        //                 Buffer.from('metadata'),
+        //                 new PublicKey(
+        //                     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+        //                 ).toBuffer(),
+        //                 collectionMintAccount.publicKey.toBuffer(),
+        //                 Buffer.from('edition'),
+        //             ],
+        //             new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s')
+        //         );
 
-            const collectionAssociatedTokenAccount =
-                getAssociatedTokenAddressSync(
-                    collectionMintAccount.publicKey,
-                    provider.wallet.publicKey
-                );
+        //     const collectionAssociatedTokenAccount =
+        //         getAssociatedTokenAddressSync(
+        //             collectionMintAccount.publicKey,
+        //             provider.wallet.publicKey
+        //         );
 
-            console.log(program.methods.mintCollection);
-            console.log(collectionName, collectionSymbol, collectionURI);
-            const transactionSignature = await program.methods
-                .mintCollection(collectionName, collectionSymbol, collectionURI)
-                .accounts({
-                    payer: provider.wallet.publicKey,
-                    collectionMetadataAccount,
-                    collectionEditionAccount,
-                    collectionMintAccount: collectionMintAccount.publicKey,
-                    collectionAssociatedTokenAccount,
-                    tokenProgram: anchor.utils.token.TOKEN_PROGRAM_ID,
-                    tokenMetadataProgram: new PublicKey(
-                        'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-                    ),
-                    associatedTokenProgram: new PublicKey(
-                        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
-                    ),
-                    systemProgram: SystemProgram.programId,
-                    rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-                })
-                .signers([collectionMintAccount])
-                .rpc({ skipPreflight: true });
+        //     console.log(program.methods.mintCollection);
+        //     console.log(collectionName, collectionSymbol, collectionURI);
+        //     const transactionSignature = await program.methods
+        //         .mintCollection(collectionName, collectionSymbol, collectionURI)
+        //         .accounts({
+        //             payer: provider.wallet.publicKey,
+        //             collectionMetadataAccount,
+        //             collectionEditionAccount,
+        //             collectionMintAccount: collectionMintAccount.publicKey,
+        //             collectionAssociatedTokenAccount,
+        //             tokenProgram: anchor.utils.token.TOKEN_PROGRAM_ID,
+        //             tokenMetadataProgram: new PublicKey(
+        //                 'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+        //             ),
+        //             associatedTokenProgram: new PublicKey(
+        //                 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
+        //             ),
+        //             systemProgram: SystemProgram.programId,
+        //             rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+        //         })
+        //         .signers([collectionMintAccount])
+        //         .rpc({ skipPreflight: true });
 
-            console.log('Transaction signature', transactionSignature);
-        } catch (error) {
-            console.error('Error minting collection:', error);
-        }
+        //     console.log('Transaction signature', transactionSignature);
+        // } catch (error) {
+        //     console.error('Error minting collection:', error);
+        // }
     };
 
     return (
@@ -135,50 +137,14 @@ const Wallet = () => {
                     </div>
                 </ButtonGroup>
             </Container>
-            {/* <MintCollection program={program} /> */}
-            <h2>Mint Collection</h2>
             <Form>
-                <Form.Group controlId="collectionName">
-                    <Form.Label>Collection Name</Form.Label>
-                    <Form.Control
-                        type="text"
-                        placeholder="Enter collection name"
-                        value={collectionName}
-                        onChange={(e) => setCollectionName(e.target.value)}
-                    />
-                </Form.Group>
-
-                <Form.Group controlId="collectionSymbol">
-                    <Form.Label>Collection Symbol</Form.Label>
-                    <Form.Control
-                        type="text"
-                        placeholder="Enter collection symbol"
-                        value={collectionSymbol}
-                        onChange={(e) => setCollectionSymbol(e.target.value)}
-                    />
-                </Form.Group>
-
-                <Form.Group controlId="collectionURI">
-                    <Form.Label>Collection URI</Form.Label>
-                    <Form.Control
-                        type="text"
-                        placeholder="Enter collection URI"
-                        value={collectionURI}
-                        onChange={(e) => setCollectionURI(e.target.value)}
-                    />
-                </Form.Group>
-
-                <Button variant="primary" onClick={mintCollection}>
-                    Mint Collection
+                <Button variant="primary" onClick={connectToProgram}>
+                    Connect to program
                 </Button>
             </Form>
 
-            {/* {collectionAddress && (
-                <div>
-                    <h3>Collection Minted!</h3>
-                    <p>Collection Address: {collectionAddress}</p>
-                </div>
-            )} */}
+            {connected && program && <MintCollection program={program} provider={provider} />}
+            {connected && program && <MintNFT program={program} provider={provider} />}
         </>
     );
 };
