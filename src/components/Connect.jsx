@@ -19,6 +19,7 @@ import {
 } from 'react-bootstrap';
 import MintCollection from './Collection';
 import MintNFT from './Mint';
+import style from './Button.module.css';
 
 require('@solana/wallet-adapter-react-ui/styles.css');
 
@@ -169,10 +170,7 @@ const Wallet = () => {
                 <Row className="justify-content-center mt-5">
                     <Col xs="auto">
                         <Button
-                            style={{
-                                background: '#6610f2',
-                                border: 0,
-                            }}
+                            className={style.button}
                             onClick={connectToProgram}
                             variant="primary"
                         >
