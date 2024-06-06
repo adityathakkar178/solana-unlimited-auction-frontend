@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Connection, PublicKey, SystemProgram, Keypair } from '@solana/web3.js';
+import { PublicKey, SystemProgram, Keypair } from '@solana/web3.js';
 import * as anchor from '@project-serum/anchor';
 import { getAssociatedTokenAddressSync } from '@solana/spl-token';
 import { Button, Form, Container } from 'react-bootstrap';
+import classes from './Form.module.css';
+import style from './Button.module.css';
 
 const MintNFT = ({ program, provider }) => {
     const [nftName, setNftName] = useState('');
@@ -79,9 +81,9 @@ const MintNFT = ({ program, provider }) => {
 
     return (
         <Container>
-            <h2>Mint NFT</h2>
-            <Form>
-                <Form.Group controlId="collectionName">
+            <Form className={classes.form}>
+                <h2>Mint NFT</h2>
+                <Form.Group className="mb-3" controlId="collectionName">
                     <Form.Label>Nft Name</Form.Label>
                     <Form.Control
                         type="text"
@@ -91,7 +93,7 @@ const MintNFT = ({ program, provider }) => {
                     />
                 </Form.Group>
 
-                <Form.Group controlId="collectionSymbol">
+                <Form.Group className="mb-3" controlId="collectionSymbol">
                     <Form.Label>Nft Symbol</Form.Label>
                     <Form.Control
                         type="text"
@@ -101,7 +103,7 @@ const MintNFT = ({ program, provider }) => {
                     />
                 </Form.Group>
 
-                <Form.Group controlId="collectionURI">
+                <Form.Group className="mb-3" controlId="collectionURI">
                     <Form.Label>Nft URI</Form.Label>
                     <Form.Control
                         type="text"
@@ -111,7 +113,7 @@ const MintNFT = ({ program, provider }) => {
                     />
                 </Form.Group>
 
-                <Form.Group controlId="collectionAddress">
+                <Form.Group className="mb-3" controlId="collectionAddress">
                     <Form.Label>Collection Address</Form.Label>
                     <Form.Control
                         type="text"
@@ -121,7 +123,11 @@ const MintNFT = ({ program, provider }) => {
                     />
                 </Form.Group>
 
-                <Button variant="primary" onClick={mintNft}>
+                <Button
+                    className={style.button}
+                    variant="primary"
+                    onClick={mintNft}
+                >
                     Mint NFT
                 </Button>
             </Form>

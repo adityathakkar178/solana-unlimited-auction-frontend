@@ -3,6 +3,8 @@ import { Connection, PublicKey, SystemProgram, Keypair } from '@solana/web3.js';
 import * as anchor from '@project-serum/anchor';
 import { getAssociatedTokenAddressSync } from '@solana/spl-token';
 import { Button, Form, Container } from 'react-bootstrap';
+import classes from './Form.module.css';
+import style from './Button.module.css';
 
 const MintCollection = ({ program, provider }) => {
     const [collectionName, setCollectionName] = useState('');
@@ -77,9 +79,9 @@ const MintCollection = ({ program, provider }) => {
 
     return (
         <Container>
-            <h2>Mint Collection</h2>
-            <Form>
-                <Form.Group controlId="collectionName">
+            <Form className={classes.form}>
+                <h2>Mint Collection</h2>
+                <Form.Group className="mb-3" controlId="collectionName">
                     <Form.Label>Collection Name</Form.Label>
                     <Form.Control
                         type="text"
@@ -89,7 +91,7 @@ const MintCollection = ({ program, provider }) => {
                     />
                 </Form.Group>
 
-                <Form.Group controlId="collectionSymbol">
+                <Form.Group className="mb-3" controlId="collectionSymbol">
                     <Form.Label>Collection Symbol</Form.Label>
                     <Form.Control
                         type="text"
@@ -99,7 +101,7 @@ const MintCollection = ({ program, provider }) => {
                     />
                 </Form.Group>
 
-                <Form.Group controlId="collectionURI">
+                <Form.Group className="mb-3" controlId="collectionURI">
                     <Form.Label>Collection URI</Form.Label>
                     <Form.Control
                         type="text"
@@ -109,7 +111,11 @@ const MintCollection = ({ program, provider }) => {
                     />
                 </Form.Group>
 
-                <Button variant="primary" onClick={mintCollection}>
+                <Button
+                    className={style.button}
+                    variant="primary"
+                    onClick={mintCollection}
+                >
                     Mint Collection
                 </Button>
             </Form>

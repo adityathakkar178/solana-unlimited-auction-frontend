@@ -1,21 +1,26 @@
-import { createContext, useState } from 'react';
+import { useState } from 'react';
 import { useAnchorWallet } from '@solana/wallet-adapter-react';
 import { Connection, PublicKey, SystemProgram, Keypair } from '@solana/web3.js';
 import * as anchor from '@project-serum/anchor';
-import { getAssociatedTokenAddressSync } from '@solana/spl-token';
 import { useWallet } from '@solana/wallet-adapter-react';
 import {
     WalletMultiButton,
     WalletDisconnectButton,
 } from '@solana/wallet-adapter-react-ui';
 import { IDL } from '../idl';
-import { Container, ButtonGroup, Button, Form } from 'react-bootstrap';
+import {
+    Container,
+    ButtonGroup,
+    Button,
+    Form,
+    Row,
+    Col,
+    Card,
+} from 'react-bootstrap';
 import MintCollection from './Collection';
 import MintNFT from './Mint';
 
 require('@solana/wallet-adapter-react-ui/styles.css');
-
-const ProgramContext = createContext(null);
 
 const network = 'https://api.devnet.solana.com/';
 const opts = { preflightCommitment: 'processed' };
@@ -26,9 +31,9 @@ const Wallet = () => {
     console.log(connected);
     const [provider, setProvider] = useState(null);
     const [program, setProgram] = useState(null);
-    const [collectionName, setCollectionName] = useState('');
-    const [collectionSymbol, setCollectionSymbol] = useState('');
-    const [collectionURI, setCollectionURI] = useState('');
+    // const [collectionName, setCollectionName] = useState('');
+    // const [collectionSymbol, setCollectionSymbol] = useState('');
+    // const [collectionURI, setCollectionURI] = useState('');
     const [error, setError] = useState('');
 
     const getProvider = () => {
@@ -125,26 +130,74 @@ const Wallet = () => {
         // }
     };
 
+    const renderComponents = () => {
+        return (
+            <Row className="justify-content-center">
+                <Col>
+                    <MintCollection
+                        key="mint-collection"
+                        program={program}
+                        provider={provider}
+                    />
+                </Col>
+                <Col>
+                    <MintNFT
+                        key="mint-nft"
+                        program={program}
+                        provider={provider}
+                    />
+                </Col>
+            </Row>
+        );
+    };
+
     return (
         <>
-            <Container className="d-flex justify-content-center my-3">
-                <ButtonGroup>
-                    <div className="me-2">
-                        <WalletMultiButton />
-                    </div>
-                    <div>
-                        <WalletDisconnectButton />
-                    </div>
-                </ButtonGroup>
+            <Container>
+                <Row>
+                    <Container className="d-flex justify-content-center my-3">
+                        <ButtonGroup>
+                            <div className="me-2">
+                                <WalletMultiButton />
+                            </div>
+                            <div>
+                                <WalletDisconnectButton />
+                            </div>
+                        </ButtonGroup>
+                    </Container>
+                </Row>
+                <Row className="justify-content-center mt-5">
+                    <Col xs="auto">
+                        <Button
+                            style={{
+                                background: '#6610f2',
+                                border: 0,
+                            }}
+                            onClick={connectToProgram}
+                            variant="primary"
+                        >
+                            Connect to Program
+                        </Button>
+                    </Col>
+                </Row>
+                <Row className="justify-content-center mt-5">
+                    {connected && program && (
+                        <Col>
+                            <Card
+                                style={{
+                                    backgroundColor: '#343a40',
+                                    color: '#f8f9fa',
+                                    border: 0,
+                                }}
+                            >
+                                <Card.Body className="dark-card">
+                                    {renderComponents()}
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    )}
+                </Row>
             </Container>
-            <Form>
-                <Button variant="primary" onClick={connectToProgram}>
-                    Connect to program
-                </Button>
-            </Form>
-
-            {connected && program && <MintCollection program={program} provider={provider} />}
-            {connected && program && <MintNFT program={program} provider={provider} />}
         </>
     );
 };
