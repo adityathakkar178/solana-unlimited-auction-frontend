@@ -8,7 +8,7 @@ import {
     WalletDisconnectButton,
 } from '@solana/wallet-adapter-react-ui';
 import { IDL } from '../idl';
-import {
+import { 
     Container,
     ButtonGroup,
     Button,
@@ -20,6 +20,7 @@ import {
 import MintCollection from './Collection';
 import MintNFT from './Mint';
 import style from './Button.module.css';
+import StartAuction from './StartAuction';
 
 require('@solana/wallet-adapter-react-ui/styles.css');
 
@@ -136,14 +137,18 @@ const Wallet = () => {
             <Row className="justify-content-center">
                 <Col>
                     <MintCollection
-                        key="mint-collection"
                         program={program}
                         provider={provider}
                     />
                 </Col>
                 <Col>
                     <MintNFT
-                        key="mint-nft"
+                        program={program}
+                        provider={provider}
+                    />
+                </Col>
+                <Col>
+                    <StartAuction
                         program={program}
                         provider={provider}
                     />

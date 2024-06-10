@@ -15,6 +15,7 @@ const MintNFT = ({ program, provider }) => {
     const mintNft = async () => {
         try {
             const mintAccount = Keypair.generate();
+            console.log(mintAccount.publicKey.toString());
 
             const collectionAddressPubkey = new PublicKey(collectionAddress);
 
