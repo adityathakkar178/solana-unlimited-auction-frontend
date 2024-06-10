@@ -54,8 +54,8 @@ const CancelAuction = ({ program, provider }) => {
 
     return (
         <Container>
-            <h2>Cancel Auction</h2>
             <Form className={classes.form}>
+                <h2>Cancel Auction</h2>
                 <Form.Group className="mb-3" controlId="nftMintAddress">
                     <Form.Label>NFT Mint Address</Form.Label>
                     <Form.Control
