@@ -1,41 +1,61 @@
-import { Container, Form, Button } from 'react-bootstrap';
-import { PublicKey, SystemProgram, Keypair } from '@solana/web3.js';
+import { useState } from 'react';
+import { getAssociatedTokenAddressSync } from '@solana/spl-token';
+import { PublicKey, SystemProgram } from '@solana/web3.js';
+import * as anchor from '@project-serum/anchor';
+import { Button, Container, Form } from 'react-bootstrap';
 import classes from './Form.module.css';
 import style from './Button.module.css';
-import { useState } from 'react';
 
-const WithdrawBid = ({ program, provider }) => {
+const CancelAuction = ({ program, provider }) => {
     const [nftMintAddress, setNftMintAddress] = useState('');
 
-    const withdrawBid = async () => {
+    const cancelAuction = async () => {
         try {
             const mint = new PublicKey(nftMintAddress);
+
+            const sellerTokenAccount = getAssociatedTokenAddressSync(
+                mint,
+                provider.wallet.publicKey
+            );
 
             const [pdaAccount, bump] = PublicKey.findProgramAddressSync(
                 [Buffer.from('sale'), mint.toBuffer()],
                 program.programId
             );
 
-            console.log(program.methods.withdrawBid);
+            const pdaTokenAccountAddress = getAssociatedTokenAddressSync(
+                mint,
+                pdaAccount,
+                true
+            );
+
+            console.log(program.methods.cancelAuction);
             const transactionSignature = await program.methods
-                .withdrawBid()
+                .cancelAuction()
                 .accounts({
-                    bidder: provider.wallet.publicKey,
+                    seller: provider.wallet.publicKey,
                     pdaAccount,
+                    pdaTokenAccount: pdaTokenAccountAddress,
+                    sellerTokenAccount: sellerTokenAccount,
+                    pdaSigner: pdaAccount,
+                    mint,
+                    tokenProgram: anchor.utils.token.TOKEN_PROGRAM_ID,
+                    systemProgram: SystemProgram.programId,
+                    rent: anchor.web3.SYSVAR_RENT_PUBKEY,
                 })
                 .signers([])
                 .rpc({ skipPreflight: true });
 
             console.log('Transaction signature', transactionSignature);
         } catch (error) {
-            console.log('Error withdrawing bid', error);
+            console.log('Error canceling auction', error);
         }
     };
 
     return (
         <Container>
+            <h2>Cancel Auction</h2>
             <Form className={classes.form}>
-                <h2>Withdraw Bid</h2>
                 <Form.Group className="mb-3" controlId="nftMintAddress">
                     <Form.Label>NFT Mint Address</Form.Label>
                     <Form.Control
@@ -49,13 +69,13 @@ const WithdrawBid = ({ program, provider }) => {
                 <Button
                     className={style.button}
                     variant="primary"
-                    onClick={withdrawBid}
+                    onClick={cancelAuction}
                 >
-                    Withdraw Bid
+                    Cancel Auction
                 </Button>
             </Form>
         </Container>
     );
 };
 
-export default WithdrawBid;
+export default CancelAuction;

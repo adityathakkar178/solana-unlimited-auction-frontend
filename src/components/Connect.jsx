@@ -25,6 +25,7 @@ import PlaceBid from './Placebid';
 import AcceptBid from './AcceptBid';
 import RejectBid from './RejectBid';
 import WithdrawBid from './WithdrawBid';
+import CancelAuction from './CancelAuction';
 
 require('@solana/wallet-adapter-react-ui/styles.css');
 
@@ -177,6 +178,12 @@ const Wallet = () => {
                 </Col>
                 <Col>
                     <WithdrawBid
+                        program={program}
+                        provider={provider}
+                    />
+                </Col>
+                <Col>
+                    <CancelAuction
                         program={program}
                         provider={provider}
                     />
