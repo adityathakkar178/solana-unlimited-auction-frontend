@@ -35,7 +35,7 @@ const PlaceBid = ({ program, provider }) => {
 
             console.log('Transaction signature', transactionSignature);
         } catch (error) {
-            console.error('Error minting collection:', error);
+            console.error('Error placing bid:', error);
         }
     };
 

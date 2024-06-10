@@ -22,6 +22,7 @@ import MintNFT from './Mint';
 import style from './Button.module.css';
 import StartAuction from './StartAuction';
 import PlaceBid from './Placebid';
+import AcceptBid from './AcceptBid';
 
 require('@solana/wallet-adapter-react-ui/styles.css');
 
@@ -156,6 +157,12 @@ const Wallet = () => {
                 </Col>
                 <Col>
                     <PlaceBid
+                        program={program}
+                        provider={provider}
+                    />
+                </Col>
+                <Col>
+                    <AcceptBid
                         program={program}
                         provider={provider}
                     />
