@@ -88,7 +88,7 @@ const MintNFT = ({ program, provider }) => {
                     <Form.Label>Nft Name</Form.Label>
                     <Form.Control
                         type="text"
-                        placeholder="Enter collection name"
+                        placeholder="Enter NFT name"
                         value={nftName}
                         onChange={(e) => setNftName(e.target.value)}
                     />
@@ -98,7 +98,7 @@ const MintNFT = ({ program, provider }) => {
                     <Form.Label>Nft Symbol</Form.Label>
                     <Form.Control
                         type="text"
-                        placeholder="Enter collection symbol"
+                        placeholder="Enter NFT symbol"
                         value={nftSymbol}
                         onChange={(e) => setNftSymbol(e.target.value)}
                     />
@@ -108,7 +108,7 @@ const MintNFT = ({ program, provider }) => {
                     <Form.Label>Nft URI</Form.Label>
                     <Form.Control
                         type="text"
-                        placeholder="Enter collection URI"
+                        placeholder="Enter NFT URI"
                         value={nftURI}
                         onChange={(e) => setNftURI(e.target.value)}
                     />
