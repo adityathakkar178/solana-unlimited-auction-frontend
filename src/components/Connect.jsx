@@ -23,6 +23,7 @@ import style from './Button.module.css';
 import StartAuction from './StartAuction';
 import PlaceBid from './Placebid';
 import AcceptBid from './AcceptBid';
+import RejectBid from './RejectBid';
 
 require('@solana/wallet-adapter-react-ui/styles.css');
 
@@ -163,6 +164,12 @@ const Wallet = () => {
                 </Col>
                 <Col>
                     <AcceptBid
+                        program={program}
+                        provider={provider}
+                    />
+                </Col>
+                <Col>
+                    <RejectBid
                         program={program}
                         provider={provider}
                     />
