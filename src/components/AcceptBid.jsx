@@ -19,7 +19,7 @@ const AcceptBid = ({ program, provider }) => {
             const mint = new PublicKey(nftMintAddress);
 
             console.log('Winner:', winner.toString());
-            
+
             const [pdaAccount, bump] = PublicKey.findProgramAddressSync(
                 [Buffer.from('sale'), mint.toBuffer()],
                 program.programId
@@ -31,10 +31,8 @@ const AcceptBid = ({ program, provider }) => {
                 true
             );
 
-            const selectedBidderTokenAccountAddress = getAssociatedTokenAddressSync(
-                mint,
-                winner,
-            );
+            const selectedBidderTokenAccountAddress =
+                getAssociatedTokenAddressSync(mint, winner);
 
             console.log(program.methods.acceptBid);
             console.log(winningbidder);
@@ -44,7 +42,8 @@ const AcceptBid = ({ program, provider }) => {
                     seller: provider.wallet.publicKey,
                     pdaAccount,
                     pdaTokenAccount: pdaTokenAccountAddress,
-                    winningBidderTokenAccount: selectedBidderTokenAccountAddress,
+                    winningBidderTokenAccount:
+                        selectedBidderTokenAccountAddress,
                     pdaSigner: pdaAccount,
                     winningBidder: winner,
                     mint,
@@ -52,7 +51,7 @@ const AcceptBid = ({ program, provider }) => {
                     systemProgram: SystemProgram.programId,
                     rent: anchor.web3.SYSVAR_RENT_PUBKEY,
                 })
-                .signers([winner])
+                .signers([])
                 .rpc({ skipPreflight: true });
 
             console.log('Transaction signature', transactionSignature);
